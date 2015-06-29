@@ -25,12 +25,12 @@ public class TSlaveMobilityListener extends CoreDataReaderAdapter{
 		
 		try {
 			tMasterToSlaveMobilityDataReader.read(
-					dataSeq, 
-					infoSeq,
-					ResourceLimitsQosPolicy.LENGTH_UNLIMITED,
-                    SampleStateKind.ANY_SAMPLE_STATE,
-                    ViewStateKind.ANY_VIEW_STATE,
-                    InstanceStateKind.ANY_INSTANCE_STATE);
+					  dataSeq
+					, infoSeq
+					, ResourceLimitsQosPolicy.LENGTH_UNLIMITED
+					, SampleStateKind.ANY_SAMPLE_STATE
+					, ViewStateKind.ANY_VIEW_STATE
+					, InstanceStateKind.ANY_INSTANCE_STATE);
 			
 			for(int i = 0; i < dataSeq.size(); i++) {
 				SampleInfo info = (SampleInfo) infoSeq.get(i);
