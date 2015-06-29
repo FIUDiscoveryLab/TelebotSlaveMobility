@@ -14,6 +14,7 @@ import com.rti.dds.subscription.DataReaderImpl;
 import com.rti.dds.subscription.Subscriber;
 import com.rti.dds.topic.Topic;
 
+import discoverylab.telebot.slave.configurations.Config;
 import discoverylab.telebot.slave.core.readers.CoreDataReaderAdapter;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -33,11 +34,11 @@ public abstract class CoreSlaveComponent {
 	protected Boolean serialConnected 		= false;
 	private Boolean serialPortsAvailable 	= false;
 	private String serialPortName;
-	private int baudRate;
-	private int dataBits;
-	private int stopBits; 
-	private int parityType;
-	private int eventMask;
+	private Integer baudRate;
+	private Integer dataBits;
+	private Integer stopBits; 
+	private Integer parityType;
+	private Integer eventMask;
 	
 //  DDS 
 	private DDSCommunicator communicator;
@@ -54,11 +55,12 @@ public abstract class CoreSlaveComponent {
 	public CoreSlaveComponent(SerialPort serialPort){
 		this.serialPort = serialPort;
 		
-		this.baudRate 			= CoreHandsConfig.DEFAULT_SERIAL_BAUD_RATE;
-		this.dataBits 			= CoreHandsConfig.DEFAULT_SERIAL_DATA_BITS;
-		this.stopBits 			= CoreHandsConfig.DEFAULT_SERIAL_STOP_BITS;
-		this.parityType 		= CoreHandsConfig.DEFAULT_SERIAL_PARITY_TYPE;
-		this.eventMask 			= CoreHandsConfig.DEFAULT_SERIAL_EVENT_MASK;
+		LOGW(TAG, "Setting --Default-- Serial Configurations");
+		this.baudRate 			= Config.SERIAL_BAUD_RATE;
+		this.dataBits 			= Config.SERIAL_DATA_BITS;
+		this.stopBits 			= Config.SERIAL_STOP_BITS;
+		this.parityType 		= Config.SERIAL_PARITY_TYPE;
+		this.eventMask 			= Config.SERIAL_EVENT_MASK;
 	}
 	
 	/**
@@ -89,14 +91,55 @@ public abstract class CoreSlaveComponent {
 	public boolean initiate(){
 		try {
 			serialPort.openPort();
-			serialPort.setParams(57600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-			serialPort.setEventsMask(SerialPort.MASK_RXCHAR);
+			if(!checkSerialParams()){
+				setSerialDefaultParams();
+			}
+			else {
+				serialPort.setParams(baudRate
+						, dataBits
+						, stopBits
+						, parityType);
+				
+				serialPort.setEventsMask(eventMask);
+			}
 		} catch (SerialPortException e) {
 			LOGE(TAG, "Error opening SerialPort: " + serialPortName  + " with Baudrate: " + baudRate);
 			e.printStackTrace();
 		}
 		finally{
 			return serialPort.isOpened();
+		}
+	}
+	
+	/**
+	 * Check if the user has defined Serial parameters
+	 * @return
+	 */
+	private boolean checkSerialParams(){
+		return(serialPortName != null && 
+				baudRate != null && 
+				dataBits != null && 
+				stopBits != null && 
+				parityType != null && 
+				eventMask != null);
+	}
+	
+	/**
+	 * Utility method to set the default configuration parameters for a Serial object.
+	 * This method is called if the user does not pass the Serial parameters.
+	 */
+	private void setSerialDefaultParams(){
+		LOGW(TAG, "Setting Serial --Default-- Paramaters");
+		try {
+			serialPort.setParams(Config.SERIAL_BAUD_RATE
+					, Config.SERIAL_DATA_BITS
+					, Config.SERIAL_STOP_BITS
+					, Config.SERIAL_PARITY_TYPE);
+			
+			serialPort.setEventsMask(Config.SERIAL_EVENT_MASK);
+		} catch (SerialPortException e) {
+			LOGE(TAG, "Error setting Serial parameters: " + serialPortName  + " with Baudrate: " + baudRate);
+			e.printStackTrace();
 		}
 	}
 	

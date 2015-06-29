@@ -30,6 +30,14 @@ public class LogUtils {
 		logger.info(tag, message, cause);
 	}
 	
+	public static void LOGW(final String tag, String message) {
+		logger.warn(tag, message);
+	}
+	
+	public static void LOGW(final String tag, String message, Throwable cause) {
+		logger.warn(tag, message, cause);
+	}
+	
 	public static void LOGE(final String tag, String message){
 		logger.error(tag, message);
 	}
